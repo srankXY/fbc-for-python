@@ -115,16 +115,19 @@ class FBC(object):
             # 多进程
             # 定义进程池
             p = ProcessPoolExecutor(max_workers=self.maxThreads)
-            for chrome_addr in addrs:
+            for i in range(self.maxThreads):
+
+                # 判断是否还存在未执行的窗口
+                try:
+                    chrome_addr = addrs.pop()
+                except IndexError:
+                    break
 
                 # 加入执行进程
                 if runInFBC:
                     p.submit(func, chrome_addr, self._driver_path)
                 else:
                     p.submit(func, chrome_addr)
-
-                # 移除已经操作的addr
-                addrs.remove(chrome_addr)
 
                 # 开启延迟
                 if self.delay:
