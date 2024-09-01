@@ -18,7 +18,7 @@
 你需要安装`FBC SDK`
 
 ```shell
-pip install FBC
+pip install fbc-for-python
 ```
 
 ### 本地控制FBC
@@ -35,7 +35,7 @@ pip install FBC
 ```python
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
-import FBC
+from fbc-for-python import FBC
 
 def spider(chrome_addr):
     options = webdriver.ChromeOptions()
@@ -59,7 +59,7 @@ if __name__ == '__main__':
 ```python
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
-import FBC
+from fbc-for-python import FBC
 
 class spider(object):
 
@@ -87,7 +87,7 @@ fbc.start(s.run)
 ```python
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
-import FBC
+from fbc-for-python import FBC
 
 def spider(chrome_addr, driver_path):
     options = webdriver.ChromeOptions()
@@ -106,7 +106,7 @@ if __name__ == '__main__':
 ```python
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
-import FBC
+from fbc-for-python import FBC
 
 class spider(object):
 
@@ -129,7 +129,7 @@ OK，现在你将可以在FBC RPA中为所欲为了。
 
 ### 安装sdk
 
-`pip install FBC`
+`pip install fbc-for-python`
 
 ### 设置
 
