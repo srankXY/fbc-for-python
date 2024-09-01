@@ -17,8 +17,8 @@
 
 你需要安装`FBC SDK`
 
-```shell
-pip install fbc-for-python
+```python
+pip install fbc_for_python
 ```
 
 ### 本地控制FBC
@@ -35,7 +35,7 @@ pip install fbc-for-python
 ```python
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
-from fbc-for-python import FBC
+from fbc_for_python import FBC
 
 def spider(chrome_addr):
     options = webdriver.ChromeOptions()
@@ -59,7 +59,7 @@ if __name__ == '__main__':
 ```python
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
-from fbc-for-python import FBC
+from fbc_for_python import FBC
 
 class spider(object):
 
@@ -87,7 +87,7 @@ fbc.start(s.run)
 ```python
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
-from fbc-for-python import FBC
+from fbc_for_python import FBC
 
 def spider(chrome_addr, driver_path):
     options = webdriver.ChromeOptions()
@@ -106,7 +106,7 @@ if __name__ == '__main__':
 ```python
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
-from fbc-for-python import FBC
+from fbc_for_python import FBC
 
 class spider(object):
 
@@ -129,7 +129,7 @@ OK，现在你将可以在FBC RPA中为所欲为了。
 
 ### 安装sdk
 
-`pip install fbc-for-python`
+`pip install fbc_for_python`
 
 ### 设置
 
@@ -215,3 +215,6 @@ fbc.start(spiderFunc=spider, serials=[1,2], runInFBC=True)
 
 > 其他SDK通用问题将在这儿展示
 
+1. 如果导入异常，请指定安装版本
+
+`pip install fbc_for_python==1.1`

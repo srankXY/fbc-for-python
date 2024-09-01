@@ -1,13 +1,13 @@
 from setuptools import setup, find_packages
 
-GFICLEE_VERSION = '1.0'
+GFICLEE_VERSION = '1.1'
 
 with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
 
 setup(
-    name='FBC',
+    name='fbc_for_python',
     version=GFICLEE_VERSION,
     packages=find_packages(),
     include_package_data=True,

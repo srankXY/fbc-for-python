@@ -2,6 +2,8 @@
 
 ## 步骤
 
+> 注意新建目录，代码放到该目录下，并创建`__init__.py`
+
 - 复制setup.py
 
 - 修改setup.py
@@ -13,15 +15,13 @@
 
 - 打包
 
-  > python3 setup.py sdist bdist_wheel
+  > python setup.py sdist
 
 - 上传pypi
 
-  > pip install --user --upgrade twine
+  > pip install --upgrade twine
   >
-  > twine upload dist/*
-  >
-  > 注意：其中username输入`__token__`，password输入token值
+  > python -m twine upload dist/*
 
 - 安装
 
