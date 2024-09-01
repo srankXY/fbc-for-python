@@ -18,12 +18,13 @@ class FBC(object):
         self.delay = None                   # 是否开启延迟
         self.random_start = None            # 延迟开启时的随机数开始位置
         self.random_end = None              # 延迟开启时的随机数结束位置
-        self.maxThreads = None              # 多进程最大进程数，不设置时默认根据操控的窗口数决定，最大不能超过10
+        self.maxThreads = None              # 多进程最大进程数，不设置时默认根据操控的窗口数决定，最大不能超过20
 
     # 常量只读
     @property
     def constant(self):
-        return self._api_path, self._driver_path
+        return (self._api_path,
+                self._driver_path)
 
     # 设置相关
     # 延迟
@@ -82,9 +83,9 @@ class FBC(object):
         return res.json()
 
     # 多进程启动，传入具体的浏览器操控方法
-    def start(self, func, serials: list = None, runInFBC: bool = None):
+    def start(self, spiderFunc, serials: list = None, runInFBC: bool = None):
         """
-        :param func:        浏览器操作函数.
+        :param spiderFunc:        浏览器操作函数.
         :param serials:     操作的窗口, 默认为所有
         :param runInFBC:    是否在FBC盒子中运行，上传到脚本商城的脚本必须为True
         :return:
@@ -125,9 +126,9 @@ class FBC(object):
 
                 # 加入执行进程
                 if runInFBC:
-                    p.submit(func, chrome_addr, self._driver_path)
+                    p.submit(spiderFunc, chrome_addr, self._driver_path)
                 else:
-                    p.submit(func, chrome_addr)
+                    p.submit(spiderFunc, chrome_addr)
 
                 # 开启延迟
                 if self.delay:
