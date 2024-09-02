@@ -54,7 +54,7 @@ if __name__ == '__main__':
 
 
 
-而如果的代码是用类封装的，你可以这样：
+而如果你的代码是用类封装的，那你可以这样：
 
 ```python
 from selenium import webdriver
@@ -76,11 +76,11 @@ s = spider()
 fbc.start(s.run)
 ```
 
-同样，你的入口也需要准备一个参数用于接受 FBC 浏览器的调试地址
+同样，你的入口也需要准备一个参数用于接收 FBC 浏览器的调试地址
 
 ### 在FBC设备内控制FBC
 
-> 而如果你希望脚本在FBC设备内运行，你还需要在入口多准备一个参数，用于接受`webdriver`的路径，并且你需要在调用SDK启动脚本的时候显式指定`runInFBC=True`来告诉SDK本脚本是放在FBC设备内运行的（后期脚本商城）。
+> 而如果你希望脚本在FBC设备内运行，你还需要在入口多准备一个参数，用于接受`webdriver`的路径，并且你需要在调用SDK启动方法的时候显式指定`runInFBC=True`来告诉SDK 本脚本是放在FBC设备内运行的（后期脚本商城）。
 
 比如，像这样（函数）：
 
@@ -101,7 +101,7 @@ if __name__ == '__main__':
     fbc.start(spider, runInFBC=True)
 ```
 
-又或者，像这样（类）：
+或者，像这样（类）：
 
 ```python
 from selenium import webdriver
@@ -125,6 +125,39 @@ fbc.start(s.run, runInFBC=True)
 
 OK，现在你将可以在FBC RPA中为所欲为了。
 
+### 其他
+
+**如果你希望在你的自动化脚本中捕获代理异常，并自动更换代理，你可以这样：**
+
+```python
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from fbc_for_python import FBC
+
+def spider(chrome_addr, driver_path):
+    fbc = FBC.FBC(fbc_addr="您的FBC地址")
+    options = webdriver.ChromeOptions()
+    s = Service(driver_path)
+    options.debugger_address = chrome_addr
+    try:
+        driver = webdriver.Chrome(service=s, options=options)
+        driver.get('https://baidu.com')
+    except:
+        serial = fbc.get_serialID(chrome_addr=chrome_addr)
+        proxy_status = fbc.check_proxy(proxyINFO="代理ip:代理端口:代理用户名:密码")
+        if proxy_status["code"] == 200:
+            fbc.set_proxy(serial=serial, proxyINFO="代理ip:代理端口:代理用户名:密码")
+            fbc.restart_browser(serials=[serial])
+        driver = webdriver.Chrome(service=s, options=options)
+    driver.get('https://baidu.com')
+        
+if __name__ == '__main__':
+    fbc = FBC.FBC(fbc_addr="您的FBC地址")
+    fbc.start(spider, runInFBC=True)
+```
+
+当然，你也可以提前检测当前窗口使用的代理的健康状态，然后判断处理。请自行研究
+
 ## SDK
 
 ### 安装sdk
@@ -135,7 +168,7 @@ OK，现在你将可以在FBC RPA中为所欲为了。
 
 #### 延迟
 
-> 用于设置控制各个窗口的随机时间间隔.
+> 用于设置脚本控制各个窗口的随机时间间隔.
 
 示例：
 
@@ -186,15 +219,50 @@ fbc = FBC.FBC(fbc_addr="FBC设备IP")
 addrs = fbc.get_chromeDebugAddr(runInFBC=True)
 ```
 
-### 获取当前操作的窗口编号
+### 获取调试地址对应的窗口编号
 
 > 可用于后续窗口代理设置等需要传入窗口编号的地方
 
+```python
+fbc = FBC.FBC(fbc_addr="FBC设备IP")
+serial = fbc.get_serialID(chrome_addr="窗口调试地址")
+```
+
+### 获取代理信息
+
+> 用于获取指定窗口的代理信息
+
+```python
+fbc = FBC.FBC(fbc_addr="FBC设备IP")
+fbc.get_proxy(serial="窗口编号")
+```
+
 ### 设置代理
+
+> 用于设置指定窗口的代理信息
+
+```python
+fbc = FBC.FBC(fbc_addr="FBC设备IP")
+fbc.set_proxy(serial="窗口编号", proxyINFO="代理ip:代理端口:代理用户名:密码")
+```
 
 ### 检查代理
 
+> 检查您的代理是否可用
+
+```python
+fbc = FBC.FBC(fbc_addr="FBC设备IP")
+proxy_status = fbc.check_proxy(proxyINFO="代理ip:代理端口:代理用户名:密码")
+```
+
 ### 重启窗口
+
+> 重启指定的窗口
+
+```python
+fbc = FBC.FBC(fbc_addr="FBC设备IP")
+fbc.restart_browser(serials=[1,2])
+```
 
 ### 启动参数
 

@@ -136,6 +136,35 @@ class FBC(object):
 
         return result
 
+    # 获取窗口代理信息
+    def get_proxy(self, serial: int):
+        """
+        :param serial:      需要获取代理信息的窗口编号
+        :return:
+        """
+
+        # api path
+        _api_path = "/proxy/info"
+
+        # data
+        post_data = {
+            "serial": serial
+        }
+
+        # 请求
+        result = self.doHTTP(path=_api_path, data=post_data, method="GET")
+
+        if result["data"] is None:
+            return result
+        else:
+            return {
+                "code": result["code"],
+                "scheme": result["data"]["type"],
+                "ip": result["data"]["ip"],
+                "username": result["data"]["username"],
+                "password": result["data"]["password"]
+            }
+
     # 获取当前操作的窗口编号
     def get_serialID(self, chrome_addr: str):
         """
@@ -262,4 +291,4 @@ class FBC(object):
 
 if __name__ == '__main__':
     fbc = FBC(fbc_addr="192.168.3.15")
-    print(fbc.get_serialID(chrome_addr="192.168.3.15:45621"))
+    print(fbc.get_proxy(serial=1))
