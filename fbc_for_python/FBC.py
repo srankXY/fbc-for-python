@@ -1,15 +1,16 @@
 # -*- utf-8 -*-
 
 import random
+from urllib.parse import urlencode
 import requests
+from requests.models import Response
 from concurrent.futures import ProcessPoolExecutor
 import time
 
 
 class FBC(object):
 
-    # fbc api path
-    _api_path = "/fbc/system/debugPort"
+    # webdriver
     _driver_path = "/FBC/plugins/driver"
 
     def __init__(self, fbc_addr):
@@ -23,8 +24,138 @@ class FBC(object):
     # 常量只读
     @property
     def constant(self):
-        return (self._api_path,
-                self._driver_path)
+        return self._driver_path
+
+    # 通用请求方法
+    def doHTTP(self, path: str, data: dict, method: str):
+        """
+        :param path:        请求的api路径
+        :param data:        请求的数据
+        :param method:      请求方法
+        :return:
+        """
+
+        # base api addr
+        baseURL = "http://%s:%d/fbc" % (self.addr, 20001)
+
+        # headers
+        headers = {
+            "content-type": "application/json"
+        }
+
+        res: requests.models.Response = Response()
+
+        # GET
+        if method == 'GET':
+
+            data = urlencode(data)
+            # 提交请求
+            try:
+                res = requests.get(url=baseURL + path, headers=headers, params=data)
+            except Exception as e:
+                print("获取窗口地址失败，错误信息: %s", e)
+                exit(1)
+        # POST
+        elif method == 'POST':
+
+            # 提交请求
+            try:
+                res = requests.post(url=baseURL + path, headers=headers, json=data)
+            except Exception as e:
+                print("获取窗口地址失败，错误信息: %s", e)
+                exit(1)
+
+        # 返回
+        return res.json()
+
+    # 设置代理
+    def set_proxy(self, serial: int, proxyINFO: str):
+        """
+        :param serial:         要设置代理的窗口
+        :param proxyINFO:       代理信息
+        :return:
+        """
+
+        # api path
+        _api_path = "/proxy/submit"
+
+        # data
+        post_data = {
+            "ipPortArr": [
+                {
+                    "ipPort": proxyINFO,
+                    "serial": serial
+                }
+            ]
+        }
+
+        # 请求
+        result = self.doHTTP(path=_api_path, data=post_data, method="POST")
+
+        return result
+
+    # 重启窗口
+    def restart_browser(self, serials: list):
+        """
+        :param serials:     需要操作的窗口
+        :return:
+        """
+
+        # api path
+        _api_path = "/device/handleVnc"
+
+        # data
+        post_data = {
+            "vncNo": serials,
+            "type": "restart"
+        }
+
+        # 请求
+        result = self.doHTTP(path=_api_path, data=post_data, method="POST")
+
+        return result
+
+    # 检查代理健康状态
+    def check_proxy(self, proxyINFO: str):
+        """
+        :param proxyINFO:       需要检查的代理地址信息
+        :return:
+        """
+
+        # api path
+        _api_path = "/proxy/singleCheck"
+
+        # data
+        post_data = {
+            "ipPort": proxyINFO,
+            "serial": None
+        }
+
+        # 请求
+        result = self.doHTTP(path=_api_path, data=post_data, method="POST")
+
+        return result
+
+    # 获取当前操作的窗口编号
+    def get_serialID(self, chrome_addr: str):
+        """
+        :param chrome_addr:      窗口完整的调试地址
+        :return:
+        """
+
+        # 分割ip，端口
+        ip, port = chrome_addr.split(":")
+
+        # 获取窗口编号偏移量
+        if ip == "127.0.0.1":
+            offset = 35000
+        else:
+            offset = 45000
+
+        serial = int(port) - offset
+
+        return serial
+
 
     # 设置相关
     # 延迟
@@ -57,30 +188,20 @@ class FBC(object):
         :return:
         """
 
-        # headers
-        headers = {
-            "content-type": "application/json"
-        }
+        # api path
+        _api_path = "/system/debugPort"
 
         # post数据
         post_data = {
-            "serials": [],
+            "serials": serials,
             "runInFBC": runInFBC
         }
 
-        # 覆盖post_data
-        if serials:
-            post_data["serials"] = serials
-
         # 提交请求
-        try:
-            res = requests.post(url="http://"+self.addr+":20001"+self._api_path, headers=headers, json=post_data)
-        except Exception as e:
-            print("获取窗口地址失败，错误信息: %s", e)
-            exit(1)
+        result = self.doHTTP(path=_api_path, data=post_data, method="POST")
 
         # 返回
-        return res.json()
+        return result
 
     # 多进程启动，传入具体的浏览器操控方法
     def start(self, spiderFunc, serials: list = None, runInFBC: bool = None):
@@ -120,7 +241,7 @@ class FBC(object):
 
                 # 判断是否还存在未执行的窗口
                 try:
-                    chrome_addr = addrs.pop()
+                    chrome_addr = addrs.pop(0)
                 except IndexError:
                     break
 
@@ -141,4 +262,4 @@ class FBC(object):
 
 if __name__ == '__main__':
     fbc = FBC(fbc_addr="192.168.3.15")
-    print(type(fbc.get_chromeDebugAddr(serials=[1,2])["data"]))
+    print(fbc.get_serialID(chrome_addr="192.168.3.15:45621"))

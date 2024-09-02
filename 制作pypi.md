@@ -11,6 +11,7 @@
 - 安装
 
   > #安装或更新setuotools和wheel
+  >
   > pip install  --upgrade setuptools wheel
 
 - 打包

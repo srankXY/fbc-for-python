@@ -186,6 +186,16 @@ fbc = FBC.FBC(fbc_addr="FBC设备IP")
 addrs = fbc.get_chromeDebugAddr(runInFBC=True)
 ```
 
+### 获取当前操作的窗口编号
+
+> 可用于后续窗口代理设置等需要传入窗口编号的地方
+
+### 设置代理
+
+### 检查代理
+
+### 重启窗口
+
 ### 启动参数
 
 **爬虫函数**(`必传`)
