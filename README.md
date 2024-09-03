@@ -134,26 +134,26 @@ from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from fbc_for_python import FBC
 
-def spider(chrome_addr, driver_path):
+def spider(chrome_addr):
     fbc = FBC.FBC(fbc_addr="您的FBC地址")
     options = webdriver.ChromeOptions()
-    s = Service(driver_path)
+    s = Service(r"您的webdriver路径")
     options.debugger_address = chrome_addr
     try:
         driver = webdriver.Chrome(service=s, options=options)
         driver.get('https://baidu.com')
     except:
         serial = fbc.get_serialID(chrome_addr=chrome_addr)
-        proxy_status = fbc.check_proxy(proxyINFO="代理ip:代理端口:代理用户名:密码")
-        if proxy_status["code"] == 200:
-            fbc.set_proxy(serial=serial, proxyINFO="代理ip:代理端口:代理用户名:密码")
+        proxy_status = fbc.check_proxy(proxyINFO="代理协议://代理ip:代理端口:代理用户名:密码")
+        if proxy_status["data"]["netdelay"] != "不可用":
+            fbc.set_proxy(serial=serial, proxyINFO="代理协议://代理ip:代理端口:代理用户名:密码")
             fbc.restart_browser(serials=[serial])
         driver = webdriver.Chrome(service=s, options=options)
     driver.get('https://baidu.com')
         
 if __name__ == '__main__':
     fbc = FBC.FBC(fbc_addr="您的FBC地址")
-    fbc.start(spider, runInFBC=True)
+    fbc.start(spider)
 ```
 
 当然，你也可以提前检测当前窗口使用的代理的健康状态，然后判断处理。请自行研究
@@ -243,7 +243,7 @@ fbc.get_proxy(serial="窗口编号")
 
 ```python
 fbc = FBC.FBC(fbc_addr="FBC设备IP")
-fbc.set_proxy(serial="窗口编号", proxyINFO="代理ip:代理端口:代理用户名:密码")
+fbc.set_proxy(serial="窗口编号", proxyINFO="代理协议://代理ip:代理端口:代理用户名:密码")
 ```
 
 ### 检查代理
@@ -252,7 +252,14 @@ fbc.set_proxy(serial="窗口编号", proxyINFO="代理ip:代理端口:代理用�
 
 ```python
 fbc = FBC.FBC(fbc_addr="FBC设备IP")
-proxy_status = fbc.check_proxy(proxyINFO="代理ip:代理端口:代理用户名:密码")
+proxy_status = fbc.check_proxy(proxyINFO="代理协议://代理ip:代理端口:代理用户名:密码")
+```
+
+### 清空所有窗口代理
+
+```python
+fbc = FBC.FBC(fbc_addr="FBC设备IP")
+fbc.clear_all_proxy()
 ```
 
 ### 重启窗口
@@ -295,4 +302,4 @@ fbc.start(spiderFunc=spider, serials=[1,2], runInFBC=True)
 
 1. 如果导入异常，请指定安装版本
 
-`pip install fbc_for_python==1.1`
+`pip install fbc_for_python==2.0`

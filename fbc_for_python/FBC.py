@@ -27,11 +27,12 @@ class FBC(object):
         return self._driver_path
 
     # 通用请求方法
-    def doHTTP(self, path: str, data: dict, method: str):
+    def doHTTP(self, path: str, method: str, data: dict = None, list_data: list = None):
         """
-        :param path:        请求的api路径
-        :param data:        请求的数据
-        :param method:      请求方法
+        :param path:                请求的api路径
+        :param method:              请求方法
+        :param data:                请求的数据，可选
+        :param list_data:           请求的数据，可选
         :return:
         """
 
@@ -51,7 +52,7 @@ class FBC(object):
             data = urlencode(data)
             # 提交请求
             try:
-                res = requests.get(url=baseURL + path, headers=headers, params=data)
+                res = requests.get(url=baseURL + path, headers=headers, params=data if data else list_data)
             except Exception as e:
                 print("获取窗口地址失败，错误信息: %s", e)
                 exit(1)
@@ -60,13 +61,26 @@ class FBC(object):
 
             # 提交请求
             try:
-                res = requests.post(url=baseURL + path, headers=headers, json=data)
+                res = requests.post(url=baseURL + path, headers=headers, json=data if data else list_data)
             except Exception as e:
                 print("获取窗口地址失败，错误信息: %s", e)
                 exit(1)
 
         # 返回
         return res.json()
+
+    # 清空所有代理
+    def clear_all_proxy(self):
+
+        # api path
+        _api_path = "/proxy/submit"
+
+        post_data = []
+
+        # 请求
+        result = self.doHTTP(path=_api_path, list_data=post_data, method="POST")
+
+        return result
 
     # 设置代理
     def set_proxy(self, serial: int, proxyINFO: str):
@@ -77,17 +91,10 @@ class FBC(object):
         """
 
         # api path
-        _api_path = "/proxy/submit"
+        _api_path = "/proxy/update"
 
         # data
-        post_data = {
-            "ipPortArr": [
-                {
-                    "ipPort": proxyINFO,
-                    "serial": serial
-                }
-            ]
-        }
+        post_data = self.check_proxy(proxyINFO=proxyINFO, serial=serial)["data"]
 
         # 请求
         result = self.doHTTP(path=_api_path, data=post_data, method="POST")
@@ -116,9 +123,10 @@ class FBC(object):
         return result
 
     # 检查代理健康状态
-    def check_proxy(self, proxyINFO: str):
+    def check_proxy(self, proxyINFO: str, serial: int = None):
         """
         :param proxyINFO:       需要检查的代理地址信息
+        :param serial:          提交代理时有用，其他时候不用
         :return:
         """
 
@@ -128,7 +136,7 @@ class FBC(object):
         # data
         post_data = {
             "ipPort": proxyINFO,
-            "serial": None
+            "serial": serial
         }
 
         # 请求
@@ -166,7 +174,8 @@ class FBC(object):
             }
 
     # 获取当前操作的窗口编号
-    def get_serialID(self, chrome_addr: str):
+    @staticmethod
+    def get_serialID(chrome_addr: str):
         """
         :param chrome_addr:      窗口完整的调试地址
         :return:
@@ -291,4 +300,4 @@ class FBC(object):
 
 if __name__ == '__main__':
     fbc = FBC(fbc_addr="192.168.3.15")
-    print(fbc.get_proxy(serial=1))
+    print(fbc.clear_all_proxy())
